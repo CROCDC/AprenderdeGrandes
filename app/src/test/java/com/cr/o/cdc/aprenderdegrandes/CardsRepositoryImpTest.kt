@@ -2,6 +2,7 @@ package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
+import com.cr.o.cdc.aprenderdegrandes.datasource.CardsDataSourceImp
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepositoryImp
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Type
 import kotlinx.coroutines.DelicateCoroutinesApi
@@ -15,7 +16,7 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
 class CardsRepositoryImpTest {
-    private val repository = CardsRepositoryImp()
+    private val repository = CardsRepositoryImp(CardsDataSourceImp())
 
     @Test
     fun getCards() {
