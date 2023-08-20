@@ -17,7 +17,7 @@ class MainViewModel(repository: CardsRepository) : ViewModel() {
 
     private val viewedCards: MutableLiveData<List<Card>> = MutableLiveData()
 
-    private val notViewedCards: Flow<Resource<Cards>> = repository.getCards()
+    private val notViewedCards: Flow<Resource<Cards?>> = repository.getCards()
 
     private val _showCard = MutableLiveData<Card?>()
     val showCard: LiveData<Card?> = _showCard

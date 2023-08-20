@@ -42,9 +42,9 @@ class MainViewModelTest {
 
     @Test
     fun initialCard() = runTest {
-        every { repository.getCards() } returns Mocks.ONE_CARD
+        every { repository.getCards() } returns Mocks.CARD_RESOURCE
         val showCard = MainViewModel(repository).showCard.getOrAwaitValueTest()
-        val expected = Mocks.ONE_CARD.first().data?.cards?.get(0)
+        val expected = Mocks.CARD_RESOURCE.first().data?.cards?.get(0)
         assertEquals(expected?.text, showCard?.text)
     }
 

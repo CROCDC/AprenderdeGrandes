@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface CardsDao {
     @Query("SELECT * FROM Cards")
-    fun get(): Flow<Cards>
+    fun get(): Flow<Cards?>
 
     @Insert
     fun insert(cards: Cards)

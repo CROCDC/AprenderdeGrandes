@@ -8,22 +8,33 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 object Mocks {
-    val ONE_CARD: Flow<Resource<Cards>> = flowOf(
+    fun getCardList(text: String = "text") = listOf(
+        Card(
+            text,
+            Type.COARSE,
+            1
+        )
+    )
+
+    val CARD_RESOURCE: Flow<Resource<Cards?>> = flowOf(
         Resource.Success(
             Cards(
                 1,
-                listOf(
-                    Card(
-                        "text",
-                        Type.COARSE,
-                        1
-                    )
-                )
+                getCardList()
             )
         )
     )
 
-    fun nCards(xCards: Int): Flow<Resource<Cards>> = flowOf(
+    fun getCardsFlow(timestamp: Long = 0) = flowOf(
+        getCards(timestamp)
+    )
+
+    fun getCards(timestamp: Long = 0, text: String = "text") = Cards(
+        timestamp,
+        getCardList(text)
+    )
+
+    fun nCards(xCards: Int): Flow<Resource<Cards?>> = flowOf(
         Resource.Success(
             Cards(
                 1,
