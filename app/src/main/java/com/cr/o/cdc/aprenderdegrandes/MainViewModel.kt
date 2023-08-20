@@ -10,6 +10,7 @@ import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 
@@ -19,8 +20,8 @@ class MainViewModel(repository: CardsRepository) : ViewModel() {
 
     private val notViewedCards: Flow<Resource<Cards?>> = repository.getCards()
 
-    private val _showCard = MutableLiveData<Card?>()
-    val showCard: LiveData<Card?> = _showCard
+    private val _showCard = MutableStateFlow<Card?>(null)
+    val showCard: Flow<Card?> = _showCard
 
     init {
         viewModelScope.launch {

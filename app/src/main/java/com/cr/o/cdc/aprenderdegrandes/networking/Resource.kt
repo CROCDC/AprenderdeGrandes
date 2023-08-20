@@ -15,16 +15,6 @@ sealed class Resource<T> {
 
 }
 
-sealed class ApiResponse<T> {
-    data class Success<T>(val data: T) : ApiResponse<T>()
-    data class Loading<T>(val data: T? = null) : ApiResponse<T>()
-    data class Error<T>(val message: String, val data: T? = null) : ApiResponse<T>()
-
-    fun isSuccessful() = this is Success
-
-    fun errorMessage(): String? = (this as? Error)?.message
-}
-
 inline fun <ResultType, RequestType> networkBoundResource(
     crossinline query: () -> Flow<ResultType>,
     crossinline fetch: suspend () -> RequestType,

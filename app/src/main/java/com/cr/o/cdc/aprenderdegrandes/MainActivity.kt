@@ -6,6 +6,7 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
@@ -14,8 +15,10 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        viewModel.showCard.observe(this) {
-            it?.let { findViewById<TextView>(R.id.txt).setTextAnimation(it.text) }
+        lifecycle.coroutineScope.launch {
+            viewModel.showCard.collectLatest {
+                it?.let { findViewById<TextView>(R.id.txt).setTextAnimation(it.text) }
+            }
         }
         findViewById<View>(R.id.btn).setOnClickListener {
             lifecycle.coroutineScope.launch {

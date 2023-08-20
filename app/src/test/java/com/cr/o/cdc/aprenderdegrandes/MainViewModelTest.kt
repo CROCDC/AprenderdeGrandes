@@ -43,7 +43,7 @@ class MainViewModelTest {
     @Test
     fun initialCard() = runTest {
         every { repository.getCards() } returns Mocks.CARD_RESOURCE
-        val showCard = MainViewModel(repository).showCard.getOrAwaitValueTest()
+        val showCard = MainViewModel(repository).showCard.first()
         val expected = Mocks.CARD_RESOURCE.first().data?.cards?.get(0)
         assertEquals(expected?.text, showCard?.text)
     }
@@ -52,9 +52,9 @@ class MainViewModelTest {
     fun notShowSameCardTwoTimes() = runTest {
         every { repository.getCards() } returns Mocks.nCards(2)
         val viewModel = MainViewModel(repository)
-        val firstCard = viewModel.showCard.getOrAwaitValueTest()
+        val firstCard = viewModel.showCard.first()
         viewModel.anotherCard()
-        val secondCard = viewModel.showCard.getOrAwaitValueTest()
+        val secondCard = viewModel.showCard.first()
         assertNotSame(firstCard, secondCard)
     }
 
@@ -64,31 +64,6 @@ class MainViewModelTest {
         val viewModel = MainViewModel(repository)
         viewModel.anotherCard()
         viewModel.anotherCard()
-        assertEquals(null, viewModel.showCard.getOrAwaitValueTest())
-    }
-
-    fun <T> LiveData<T>.getOrAwaitValueTest(): T {
-        var data: T? = null
-        val latch = CountDownLatch(1)
-        val observer = object : Observer<T> {
-            override fun onChanged(value: T) {
-                data = value
-                latch.countDown()
-                this@getOrAwaitValueTest.removeObserver(this)
-            }
-        }
-
-        this@getOrAwaitValueTest.observeForever(observer)
-
-        try {
-            if (!latch.await(2, TimeUnit.SECONDS)) {
-                throw TimeoutException("LiveData value was never set.")
-            }
-        } finally {
-            this@getOrAwaitValueTest.removeObserver(observer)
-        }
-
-        @Suppress("UNCHECKED_CAST")
-        return data as T
+        assertEquals(null, viewModel.showCard.first())
     }
 }
