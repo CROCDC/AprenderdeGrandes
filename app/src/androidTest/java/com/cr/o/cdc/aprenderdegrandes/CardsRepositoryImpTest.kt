@@ -2,7 +2,7 @@ package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.Observer
-import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
+import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepositoryImp
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Type
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.Dispatchers
@@ -14,8 +14,8 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.TimeoutException
 
-class CardsRepositoryTest {
-    private val repository = CardsRepository()
+class CardsRepositoryImpTest {
+    private val repository = CardsRepositoryImp()
 
     @Test
     fun getCards() {
@@ -32,8 +32,8 @@ class CardsRepositoryTest {
         var data: T? = null
         val latch = CountDownLatch(1)
         val observer = object : Observer<T> {
-            override fun onChanged(o: T?) {
-                data = o
+            override fun onChanged(value: T) {
+                data = value
                 latch.countDown()
                 this@getOrAwaitValueTest.removeObserver(this)
             }

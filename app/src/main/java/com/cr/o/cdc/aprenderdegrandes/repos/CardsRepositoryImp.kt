@@ -7,12 +7,13 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonReader
-import java.io.StringReader
 
-class CardsRepository {
-    val database = Firebase.database
-    val myRef = database.getReference("cards")
+interface CardsRepository {
+    fun getCards(): LiveData<List<Card>>
+}
+
+class CardsRepositoryImp {
+    private val myRef = Firebase.database.getReference("cards")
 
     fun getCards(): LiveData<List<Card>> {
         val mutableLiveData = MutableLiveData<List<Card>>()

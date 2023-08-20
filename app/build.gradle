@@ -40,7 +40,11 @@ dependencies {
     implementation 'com.google.android.material:material:1.8.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.activity:activity-ktx:1.7.2'
+
+    testImplementation "androidx.arch.core:core-testing:2.1.0"
     testImplementation 'junit:junit:4.13.2'
+    testImplementation "io.mockk:mockk-android:1.13.7"
+    testImplementation "io.mockk:mockk-agent:1.13.7"
 
     //firebase
     implementation platform('com.google.firebase:firebase-bom:32.2.2')
