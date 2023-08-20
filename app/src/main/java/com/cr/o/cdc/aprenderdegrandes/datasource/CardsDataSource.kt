@@ -10,6 +10,8 @@ interface CardsDataSource {
 
 class CardsDataSourceImp(private val firebaseDatabase: FirebaseDatabase) : CardsDataSource {
 
-    override fun getCards(): List<Card> = listOf()
-
+    override fun getCards(): List<Card> = Gson().fromJson(
+        Gson().toJson(firebaseDatabase.getCards()),
+        object : TypeToken<List<Card>>() {}.type
+    )
 }

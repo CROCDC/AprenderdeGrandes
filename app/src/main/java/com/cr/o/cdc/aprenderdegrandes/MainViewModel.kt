@@ -4,27 +4,38 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.cr.o.cdc.aprenderdegrandes.database.Cards
+import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.launch
 
 class MainViewModel(repository: CardsRepository) : ViewModel() {
 
     private val viewedCards: MutableLiveData<List<Card>> = MutableLiveData()
 
-    private val notViewedCards: LiveData<List<Card>> = repository.getCards()
+    private val notViewedCards: Flow<Resource<Cards>> = repository.getCards()
 
     private val _showCard = MutableLiveData<Card?>()
     val showCard: LiveData<Card?> = _showCard
 
-    private var isSet = false
-
     init {
-        observeSourceLiveData()
+        viewModelScope.launch {
+            notViewedCards.collect { r ->
+                r.data?.cards?.first()?.let {
+                    _showCard.value = it
+                    viewedCards.value = listOf(it)
+                }
+            }
+        }
     }
 
-    fun anotherCard() {
+    suspend fun anotherCard() {
         val viewedCardsValue = viewedCards.value!!
-        val notViewedCardsValue = notViewedCards.value
+        val notViewedCardsValue = notViewedCards.firstOrNull()?.data?.cards
         var anotherCard = notViewedCardsValue?.random()
         if (anotherCard != null && viewedCardsValue.size < (notViewedCardsValue?.size ?: 0)) {
             while (anotherCard in viewedCardsValue) {
@@ -34,20 +45,6 @@ class MainViewModel(repository: CardsRepository) : ViewModel() {
             viewedCards.value = viewedCardsValue.plus(anotherCard!!)
         } else {
             _showCard.value = null
-        }
-    }
-
-    private fun observeSourceLiveData() {
-        if (!isSet) {
-            notViewedCards.observeForever(object : Observer<List<Card>> {
-                override fun onChanged(value: List<Card>) {
-                    val first = value.first()
-                    _showCard.value = first
-                    viewedCards.value = listOf(first)
-                    notViewedCards.removeObserver(this)
-                    isSet = true
-                }
-            })
         }
     }
 }

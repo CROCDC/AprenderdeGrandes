@@ -5,6 +5,8 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.coroutineScope
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
@@ -16,7 +18,9 @@ class MainActivity : AppCompatActivity() {
             it?.let { findViewById<TextView>(R.id.txt).setTextAnimation(it.text) }
         }
         findViewById<View>(R.id.btn).setOnClickListener {
-            viewModel.anotherCard()
+            lifecycle.coroutineScope.launch {
+                viewModel.anotherCard()
+            }
         }
     }
 
