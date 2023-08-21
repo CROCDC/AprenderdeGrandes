@@ -5,7 +5,6 @@ import com.cr.o.cdc.aprenderdegrandes.database.dao.CardsDao
 import com.cr.o.cdc.aprenderdegrandes.datasource.CardsDataSource
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.networking.networkBoundResource
-import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
 import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
@@ -18,7 +17,7 @@ class CardsRepositoryImp @Inject constructor(
     private val dao: CardsDao
 ) : CardsRepository {
 
-    override fun getCards() = networkBoundResource<Cards?, List<Card>>(
+    override fun getCards() = networkBoundResource(
         query = {
             dao.get()
         },

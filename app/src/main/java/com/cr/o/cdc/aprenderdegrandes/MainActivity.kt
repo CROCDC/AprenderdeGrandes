@@ -67,7 +67,7 @@ class MainActivity : AppCompatActivity() {
             }
     }
 
-    fun View.fadInAnimation(duration: Long = 300, completion: (() -> Unit)? = null) {
+    private fun View.fadInAnimation(duration: Long = 300, completion: (() -> Unit)? = null) {
         alpha = 0f
         visibility = View.VISIBLE
         animate()

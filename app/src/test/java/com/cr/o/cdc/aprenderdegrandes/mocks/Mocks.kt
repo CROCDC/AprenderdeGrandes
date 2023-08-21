@@ -1,3 +1,5 @@
+@file:Suppress("unused", "unused", "unused")
+
 package com.cr.o.cdc.aprenderdegrandes.mocks
 
 import com.cr.o.cdc.aprenderdegrandes.database.Cards
@@ -8,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
+@Suppress("unused")
 object Mocks {
     fun getCardList(text: String = "text") = listOf(
         Card(
@@ -26,16 +29,12 @@ object Mocks {
         )
     )
 
-    fun getCardsFlow(timestamp: Long = 0) = flowOf(
-        getCards(timestamp)
-    )
-
     fun getCards(timestamp: Long = 0, text: String = "text") = Cards(
         timestamp,
         getCardList(text)
     )
 
-    var manyTimes = 0
+    private var manyTimes = 0
     fun nCards(xCards: Int): Flow<Resource<Cards?>> = flow {
         manyTimes = manyTimes.inc()
         emit(

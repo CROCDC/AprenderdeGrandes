@@ -11,7 +11,6 @@ import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
-import androidx.test.espresso.matcher.ViewMatchers.isDisplayed
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -70,7 +69,7 @@ class MainActivityTest {
         )
     }
 
-    fun checkOverlayOffViews(viewList: List<View>) {
+    private fun checkOverlayOffViews(viewList: List<View>) {
         viewList.forEachIndexed { indexA, viewA ->
             val leftA = viewA.left
             val topA = viewA.top
@@ -102,7 +101,7 @@ class MainActivityTest {
             for (i in 0 until view.childCount) {
                 val childView = view.getChildAt(i)
                 if (childView is ViewStub && childView.layoutResource != 0) {
-                    val inflatedView = childView.inflate() // Inflar el ViewStub si no lo está
+                    val inflatedView = childView.inflate()
                     val constraintLayout = findFirstConstraintLayout(inflatedView)
                     if (constraintLayout != null) {
                         return constraintLayout
