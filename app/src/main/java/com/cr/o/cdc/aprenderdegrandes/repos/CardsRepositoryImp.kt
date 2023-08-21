@@ -7,12 +7,13 @@ import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.networking.networkBoundResource
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
 import kotlinx.coroutines.flow.Flow
+import javax.inject.Inject
 
 interface CardsRepository {
     fun getCards(): Flow<Resource<Cards?>>
 }
 
-class CardsRepositoryImp(
+class CardsRepositoryImp @Inject constructor(
     private val dataSource: CardsDataSource,
     private val dao: CardsDao
 ) : CardsRepository {

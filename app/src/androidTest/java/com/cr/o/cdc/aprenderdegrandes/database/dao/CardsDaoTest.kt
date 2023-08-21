@@ -28,7 +28,7 @@ class CardsDaoTest {
     fun insertCards() = runTest {
         val cards = Cards(
             Instant.now().toEpochMilli(),
-            Mocks.ONE_CARD.value!!
+            Mocks.ONE_CARD.value
         )
         dao.insert(cards)
         assertEquals(
@@ -41,7 +41,7 @@ class CardsDaoTest {
     fun deleteAll() = runTest {
         val cards = Cards(
             1,
-            Mocks.ONE_CARD.value!!
+            Mocks.ONE_CARD.value
         )
         dao.insert(cards)
         dao.deleteAll()

@@ -1,20 +1,21 @@
 package com.cr.o.cdc.aprenderdegrandes
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class MainViewModel(repository: CardsRepository) : ViewModel() {
+@HiltViewModel
+class MainViewModel @Inject constructor(repository: CardsRepository) : ViewModel() {
 
     private val viewedCards: MutableLiveData<List<Card>> = MutableLiveData()
 
