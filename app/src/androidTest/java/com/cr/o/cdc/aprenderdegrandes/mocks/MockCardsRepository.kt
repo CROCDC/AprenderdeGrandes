@@ -13,7 +13,7 @@ class MockCardsRepository : CardsRepository {
         val getCards: MutableStateFlow<Resource<Cards?>> = MutableStateFlow(
             Resource.Success(
                 Cards(
-                    Mocks.ONE_CARD.value
+                    Mocks.TWO_CARD.value
                 )
             )
         )
