@@ -6,13 +6,13 @@ import com.google.gson.reflect.TypeToken
 import javax.inject.Inject
 
 interface CardsDataSource {
-    fun getCards(): List<Card>
+    suspend fun getCards(): List<Card>
 }
 
 class CardsDataSourceImp @Inject constructor(private val firebaseDatabase: FirebaseDatabase) :
     CardsDataSource {
 
-    override fun getCards(): List<Card> = Gson().fromJson(
+    override suspend fun getCards(): List<Card> = Gson().fromJson(
         Gson().toJson(firebaseDatabase.getCards()),
         object : TypeToken<List<Card>>() {}.type
     )

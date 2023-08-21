@@ -7,7 +7,7 @@ import com.cr.o.cdc.aprenderdegrandes.mocks.Mocks
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepositoryImp
 import io.mockk.MockKAnnotations
-import io.mockk.every
+import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
@@ -44,7 +44,7 @@ class CardsRepositoryImpTest {
     fun shouldFetchTrue() {
         var assert = false
         runTest {
-            every { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
             dao.insert(Mocks.getCards(text = "database"))
             val flow = repository.getCards()
             launch {
@@ -68,7 +68,7 @@ class CardsRepositoryImpTest {
     fun shouldFetchFalse() {
         var assert = false
         runTest {
-            every { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
             dao.insert(Mocks.getCards(text = "database", timestamp = System.currentTimeMillis()))
             val flow = repository.getCards()
             launch {
@@ -92,7 +92,7 @@ class CardsRepositoryImpTest {
     fun shouldFetchAfterWeekend() {
         var assert = false
         runTest {
-            every { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
             val timestamp = Instant.now().minusMillis(7 * 24 * 60 * 60 * 1000).toEpochMilli()
             dao.insert(Mocks.getCards(text = "database", timestamp = timestamp))
             val flow = repository.getCards()
@@ -117,7 +117,7 @@ class CardsRepositoryImpTest {
     fun shouldFetchAfterDay() {
         var assert = false
         runTest {
-            every { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
             val timestamp = Instant.now().minusMillis(24 * 60 * 60 * 1000).toEpochMilli()
             dao.insert(Mocks.getCards(text = "database", timestamp = timestamp))
             val flow = repository.getCards()

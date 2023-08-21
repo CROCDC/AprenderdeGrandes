@@ -22,10 +22,13 @@ class MainActivity : AppCompatActivity() {
                 it?.let { findViewById<TextView>(R.id.txt).setTextAnimation(it.text) }
             }
         }
-        findViewById<View>(R.id.btn).setOnClickListener {
-            lifecycle.coroutineScope.launch {
-                viewModel.anotherCard()
+        lifecycle.coroutineScope.launch {
+            viewModel.notViewedCards.collectLatest {
+                it
             }
+        }
+        findViewById<View>(R.id.btn).setOnClickListener {
+            viewModel.anotherCard()
         }
     }
 
