@@ -27,9 +27,7 @@ class MainViewModel @Inject constructor(repository: CardsRepository) : ViewModel
 
     init {
         viewModelScope.launch {
-            notViewedCards = repository.getCards().stateIn(
-                viewModelScope
-            )
+            notViewedCards = repository.getCards().stateIn(viewModelScope)
             notViewedCards.collect { r ->
                 r.data?.cards?.first()?.let {
                     _showCard.value = it

@@ -18,5 +18,5 @@ class DatabaseModule {
         Room.databaseBuilder(
             context,
             Database::class.java, "database_aprender"
-        ).allowMainThreadQueries().build()
+        ).build()
 }

@@ -5,7 +5,9 @@ import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.isVisible
 import androidx.lifecycle.coroutineScope
+import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -17,14 +19,16 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        val txt = findViewById<TextView>(R.id.txt)
+        val progressBar = findViewById<View>(R.id.progress_circular)
         lifecycle.coroutineScope.launch {
             viewModel.showCard.collectLatest {
-                it?.let { findViewById<TextView>(R.id.txt).setTextAnimation(it.text) }
+                it?.let { txt.setTextAnimation(it.text) }
             }
         }
         lifecycle.coroutineScope.launch {
             viewModel.notViewedCards.collectLatest {
-                it
+                progressBar.isVisible = it is Resource.Loading
             }
         }
         findViewById<View>(R.id.btn).setOnClickListener {
@@ -32,7 +36,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun TextView.setTextAnimation(
+    private fun TextView.setTextAnimation(
         text: String,
         duration: Long = 300,
         completion: (() -> Unit)? = null
@@ -47,7 +51,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    fun View.fadOutAnimation(
+    private fun View.fadOutAnimation(
         duration: Long = 300,
         visibility: Int = View.INVISIBLE,
         completion: (() -> Unit)? = null
