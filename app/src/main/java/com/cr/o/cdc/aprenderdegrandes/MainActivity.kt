@@ -1,37 +1,65 @@
 package com.cr.o.cdc.aprenderdegrandes
 
+import android.content.Intent
 import android.os.Bundle
+import android.text.method.ScrollingMovementMethod
 import android.view.View
 import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.coroutineScope
+import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
+import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
+
+    @Inject
+    lateinit var analytics: FirebaseAnalytics
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val txt = findViewById<TextView>(R.id.txt)
+        txt.movementMethod = ScrollingMovementMethod()
         val progressBar = findViewById<View>(R.id.progress_circular)
+        val btn = findViewById<View>(R.id.btn)
         lifecycle.coroutineScope.launch {
             viewModel.showCard.collectLatest {
                 it?.let { txt.setTextAnimation(it.text) }
             }
         }
         lifecycle.coroutineScope.launch {
-            viewModel.notViewedCards.collectLatest {
+            viewModel.cards.collectLatest {
                 progressBar.isVisible = it is Resource.Loading
             }
         }
-        findViewById<View>(R.id.btn).setOnClickListener {
+        lifecycle.coroutineScope.launch {
+            viewModel.notMoreCards.collectLatest {
+                if (it) {
+                    btn.setOnClickListener {
+                        analytics.logEvent(FirebaseEvent.BTN_FINISH_GAME, null)
+                        startActivity(
+                            Intent(
+                                this@MainActivity,
+                                FinishGameActivity::class.java
+                            )
+                        )
+                        finish()
+                    }
+                }
+            }
+        }
+        btn.setOnClickListener {
+            analytics.logEvent(FirebaseEvent.BTN_ANOTHER_CARD, null)
             viewModel.anotherCard()
         }
     }

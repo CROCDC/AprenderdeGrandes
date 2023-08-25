@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import android.view.ViewStub
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
+import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
@@ -15,6 +16,7 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
+import junit.framework.TestCase.assertEquals
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -67,6 +69,15 @@ class MainActivityTest {
                 )
             )
         )
+    }
+
+    @Test
+    fun btnAnotherCardWithoutCards() {
+        onView(withId(R.id.btn)).perform(ViewActions.click())
+        Thread.sleep(500)
+        onView(withId(R.id.btn)).perform(ViewActions.click())
+        Thread.sleep(500)
+        assertEquals(Lifecycle.State.DESTROYED, scenario.state)
     }
 
     private fun checkOverlayOffViews(viewList: List<View>) {

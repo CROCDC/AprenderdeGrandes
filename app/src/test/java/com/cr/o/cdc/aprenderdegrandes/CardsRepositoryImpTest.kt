@@ -3,6 +3,7 @@ package com.cr.o.cdc.aprenderdegrandes
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.cr.o.cdc.aprenderdegrandes.datasource.CardsDataSource
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsDao
+import com.cr.o.cdc.aprenderdegrandes.mocks.MockRemoteConfigDataSource
 import com.cr.o.cdc.aprenderdegrandes.mocks.Mocks
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepositoryImp
@@ -36,12 +37,14 @@ class CardsRepositoryImpTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         repository = CardsRepositoryImp(
             dataSource,
-            dao
+            dao,
+            MockRemoteConfigDataSource()
         )
+        MockRemoteConfigDataSource.setForceUpdate(false)
     }
 
     @Test
-    fun shouldFetchTrue() {
+    fun shouldFetchWithDatabaseInTrueAndRemoteConfigForceUpdateInFalse() {
         var assert = false
         runTest {
             coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
@@ -65,7 +68,7 @@ class CardsRepositoryImpTest {
     }
 
     @Test
-    fun shouldFetchFalse() {
+    fun shouldFetchWithDatabaseInFalseAndRemoteConfigForceUpdateInFalse() {
         var assert = false
         runTest {
             coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
@@ -77,6 +80,56 @@ class CardsRepositoryImpTest {
                         assert = true
                         assertEquals(
                             "database",
+                            it.data?.cards?.get(0)?.text
+                        )
+                        this.cancel()
+                    }
+                }
+            }
+
+        }
+        assert(assert)
+    }
+
+    @Test
+    fun shouldFetchWithRemoteConfigForceUpdateInTrueAndDatabaseInFalse() {
+        var assert = false
+        MockRemoteConfigDataSource.setForceUpdate(true)
+        runTest {
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            dao.insert(Mocks.getCards(text = "database", timestamp = System.currentTimeMillis()))
+            val flow = repository.getCards()
+            launch {
+                flow.collect {
+                    if (it !is Resource.Loading) {
+                        assert = true
+                        assertEquals(
+                            "dataSource",
+                            it.data?.cards?.get(0)?.text
+                        )
+                        this.cancel()
+                    }
+                }
+            }
+
+        }
+        assert(assert)
+    }
+
+    @Test
+    fun shouldFetchWithRemoteConfigForceUpdateInTrueAndDatabaseInTrue() {
+        var assert = false
+        MockRemoteConfigDataSource.setForceUpdate(true)
+        runTest {
+            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            dao.insert(Mocks.getCards(text = "database"))
+            val flow = repository.getCards()
+            launch {
+                flow.collect {
+                    if (it !is Resource.Loading) {
+                        assert = true
+                        assertEquals(
+                            "dataSource",
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()

@@ -11,7 +11,7 @@ class FirebaseDatabaseTest {
     fun getCards() = runTest {
         val list = firebaseDatabase.getCards()
         assertEquals(
-            "¿Sentís que tenéis un propósito en la vida? ¿Cual es?",
+            "¿Sentís que tenés un propósito en la vida? ¿Cual es?",
             list[0]["text"]
         )
     }

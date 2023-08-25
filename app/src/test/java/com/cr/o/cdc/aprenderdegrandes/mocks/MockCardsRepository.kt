@@ -14,23 +14,33 @@ class MockCardsRepository : CardsRepository {
     companion object {
         var manyTimeCalledFlow = 0
 
-        fun clean(){
+        fun clean() {
             manyTimeCalledFlow = 0
         }
+
+        val ONE_CARD = Card(
+            "text",
+            Type.GOLD,
+            1
+        )
+
+        val TWO_CARD = Card(
+            "text 2",
+            Type.GOLD,
+            2
+        )
+
+        val THIRD_CARD = Card(
+            "text 3",
+            Type.GOLD,
+            3
+        )
 
         val getCards: Flow<Resource<Cards?>> = flow {
             manyTimeCalledFlow = manyTimeCalledFlow.inc()
             emit(
                 Resource.Success(
-                    Cards(
-                        listOf(
-                            Card(
-                                "text",
-                                Type.GOLD,
-                                1
-                            )
-                        )
-                    )
+                    Cards(listOf(ONE_CARD, TWO_CARD, THIRD_CARD))
                 )
             )
 

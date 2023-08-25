@@ -15,15 +15,18 @@ object Mocks {
         )
     )
 
+    val firstCardText = "¿Sentís que tenés un propósito en la vida? ¿Cual es?"
+    val secondCardText = "¿Sentís que tenés un propósito en la vida? ¿Cual es? 2"
+
     val TWO_CARD = MutableStateFlow(
         listOf(
             Card(
-                "text",
+                firstCardText,
                 Type.COARSE,
                 1
             ),
             Card(
-                "text 2",
+                secondCardText,
                 Type.COARSE,
                 2
             )

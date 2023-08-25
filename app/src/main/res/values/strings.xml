@@ -2,4 +2,8 @@
     <string name="app_name">Aprender De Grandes</string>
     <string name="other">Otra!</string>
     <string name="title">Aprender de Grandes: El Juego</string>
+    <string name="title_activity_finish_game">FinishGameActivity</string>
+    <string name="finish_game">Has visto todas las preguntas del juego!</string>
+    <string name="play_again">Jugar de nuevo!</string>
+    <string name="rate_app">Calificanos en el play store!</string>
 </resources>
