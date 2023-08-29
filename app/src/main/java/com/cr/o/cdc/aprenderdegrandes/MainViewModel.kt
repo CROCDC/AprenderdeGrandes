@@ -10,10 +10,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -32,7 +30,7 @@ class MainViewModel @Inject constructor(private val repository: CardsRepository)
 
     init {
         viewModelScope.launch {
-            cards = repository.getCards().stateIn(viewModelScope)
+            cards = repository.getCards()
             cards.collect { r ->
                 r.data?.cards?.firstOrNull()?.let {
                     selectCard(it, r.data?.cards ?: listOf())
@@ -60,7 +58,7 @@ class MainViewModel @Inject constructor(private val repository: CardsRepository)
     }
 
     private suspend fun selectCard(cardEntity: CardEntity?, notViewCard: List<CardEntity>) {
-        this._showCard.value = cardEntity
+        this._showCard.value = cardEntity?.copy(viewedTimes = cardEntity.viewedTimes.inc())
         cardEntity?.let {
             viewCard(it)
             notViewedCards.value = notViewCard.minus(cardEntity)

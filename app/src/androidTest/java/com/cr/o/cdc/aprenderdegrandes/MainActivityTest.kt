@@ -1,5 +1,6 @@
 package com.cr.o.cdc.aprenderdegrandes
 
+import android.content.Context
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewStub
@@ -14,6 +15,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
+import com.cr.o.cdc.aprenderdegrandes.mocks.CardsMock
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockMyFirebaseAnalyticsImp
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -29,12 +31,27 @@ class MainActivityTest {
     var hiltRule = HiltAndroidRule(this)
 
     private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var context: Context
 
     @Before
     fun before() {
         scenario = launchActivity()
+        scenario.onActivity {
+            this.context = it
+        }
         Thread.sleep(1000)
         MockMyFirebaseAnalyticsImp.clean()
+    }
+
+    @Test
+    fun rateCard() {
+        val cardEntity = CardsMock.getCardsEntities()[0]
+        onView(withId(R.id.img_thumb_up)).perform(ViewActions.click())
+        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.VOTE_UP_CARD, cardEntity.id))
+        MockMyFirebaseAnalyticsImp.clean()
+        onView(withId(R.id.img_thumb_down)).perform(ViewActions.click())
+        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.VOTE_DOWN_CARD, cardEntity.id))
+
     }
 
     @Test
@@ -47,16 +64,11 @@ class MainActivityTest {
 
     @Test
     fun showInitialCard() {
-        onView(withId(R.id.txt))
-            .check(
-                matches(
-                    ViewMatchers.withText(
-                        MockCardsRepository.getCards.value.data?.cards?.get(
-                            0
-                        )?.text
-                    )
-                )
-            )
+        val cardEntity = CardsMock.getCardsEntities()[0]
+        onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(cardEntity.text)))
+        onView(withId(R.id.txt_viewed_n_times)).check(
+            matches(ViewMatchers.withSubstring(cardEntity.viewedTimes.toString()))
+        )
     }
 
     @Test
@@ -67,7 +79,7 @@ class MainActivityTest {
             1
         )
         onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(card?.text)))
-        assert(MockMyFirebaseAnalyticsImp.events.contains(FirebaseEvent.BTN_ANOTHER_CARD))
+        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.BTN_ANOTHER_CARD))
         assertEquals(
             card,
             MockMyFirebaseAnalyticsImp.viewedCardEntity
@@ -81,7 +93,7 @@ class MainActivityTest {
         onView(withId(R.id.btn)).perform(ViewActions.click())
         Thread.sleep(500)
         assertEquals(Lifecycle.State.DESTROYED, scenario.state)
-        assert(MockMyFirebaseAnalyticsImp.events.contains(FirebaseEvent.BTN_FINISH_GAME))
+        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.BTN_FINISH_GAME))
     }
 
     private fun checkOverlayOffViews(viewList: List<View>) {
@@ -99,6 +111,11 @@ class MainActivityTest {
 
                 val isOverlapping =
                     !(rightA < leftB || leftA > rightB || bottomA < topB || topA > bottomB)
+
+                val zeroDp = viewB.height == 0 && viewB.width == 0
+                if (zeroDp) {
+                    throw Exception("${viewB.javaClass.name} zero dp in height and width")
+                }
 
                 if (isOverlapping) {
                     throw Exception("${viewA.javaClass.name} at position $indexA overlapping with ${viewB.javaClass.name} at position $indexB")

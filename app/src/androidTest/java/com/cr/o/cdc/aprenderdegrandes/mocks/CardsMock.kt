@@ -12,7 +12,7 @@ object CardsMock {
         CardEntity(
             1,
             "text",
-            0,
+            10,
             0
         ),
         CardEntity(

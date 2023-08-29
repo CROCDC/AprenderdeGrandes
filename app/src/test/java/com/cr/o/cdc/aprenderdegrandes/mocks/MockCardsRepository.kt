@@ -4,27 +4,27 @@ import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
-import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class MockCardsRepository : CardsRepository {
-    override fun getCards(): Flow<Resource<Cards?>> = getCards
+    override fun getCards(): Flow<Resource<Cards?>> = cards
     override suspend fun viewCard(viewedCardEntity: CardEntity) {
-
+        val data = cards.value.data
+        cards.value = Resource.Success(
+            data?.copy(
+                cards = data.cards.map {
+                    if (viewedCardEntity == it) {
+                        it.copy(viewedTimes = it.viewedTimes.inc())
+                    } else {
+                        it
+                    }
+                }
+            )
+        )
     }
 
-    companion object {
-        var manyTimeCalledFlow = 0
+    val cards: MutableStateFlow<Resource<Cards?>> =
+        MutableStateFlow(Resource.Success(CardsMock.getCards()))
 
-        fun clean() {
-            manyTimeCalledFlow = 0
-        }
-
-        val getCards: Flow<Resource<Cards?>> = flow {
-            manyTimeCalledFlow = manyTimeCalledFlow.inc()
-            emit(Resource.Success(CardsMock.getCards()))
-
-        }
-    }
 }

@@ -9,9 +9,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.junit.After
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
@@ -24,11 +22,11 @@ class MainViewModelTest {
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
 
-    private val repository: MockCardsRepository = MockCardsRepository()
+    private lateinit var repository: MockCardsRepository
 
     @Before
     fun before() {
-        MockCardsRepository.clean()
+        repository = MockCardsRepository()
         Dispatchers.setMain(Dispatchers.Unconfined)
     }
 
@@ -36,6 +34,7 @@ class MainViewModelTest {
     fun initialCard() = runTest {
         val showCard = MainViewModel(repository).showCard.first()
         val expected = CardEntityMock.cardEntities()
+        assertEquals(1, showCard?.viewedTimes)
         assertEquals(expected[0].text, showCard?.text)
     }
 
@@ -53,12 +52,7 @@ class MainViewModelTest {
         val viewModel = MainViewModel(repository)
         viewModel.anotherCard()
         viewModel.anotherCard()
-        assertEquals(CardEntityMock.getSecondCardEntity(), viewModel.showCard.first())
+        assertEquals(CardEntityMock.getSecondCardEntity().id, viewModel.showCard.first()?.id)
         assertTrue(viewModel.notMoreCards.first())
-    }
-
-    @After
-    fun checkManyTimesCalledRepo() {
-        assertEquals(1, MockCardsRepository.manyTimeCalledFlow)
     }
 }

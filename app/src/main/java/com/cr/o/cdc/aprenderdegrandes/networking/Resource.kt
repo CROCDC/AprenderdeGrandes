@@ -39,6 +39,7 @@ inline fun <ResultType, RequestType> networkBoundResource(
         } catch (throwable: Throwable) {
             onFetchFailed(throwable)
             query().map { Resource.Error(throwable.message, it) }
+            throw throwable
         }
     } else {
         query().map { Resource.Success(it) }

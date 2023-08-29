@@ -8,9 +8,11 @@ import android.widget.TextView
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
+import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.coroutineScope
 import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
 import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalytics
+import com.cr.o.cdc.aprenderdegrandes.databinding.ActivityMainBinding
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
@@ -27,27 +29,38 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        val txt = findViewById<TextView>(R.id.txt)
-        txt.movementMethod = ScrollingMovementMethod()
-        val progressBar = findViewById<View>(R.id.progress_circular)
-        val btn = findViewById<View>(R.id.btn)
+
+        val binding: ActivityMainBinding = DataBindingUtil.setContentView(
+            this,
+            R.layout.activity_main
+        )
+        binding.txt.movementMethod = ScrollingMovementMethod()
         lifecycle.coroutineScope.launch {
             viewModel.showCard.collectLatest {
-                it?.let {
-                    txt.setTextAnimation(it.text)
-                    analytics.trackViewCard(it)
+                it?.let { card ->
+                    binding.txt.setTextAnimation(card.text)
+                    analytics.trackViewCard(card)
+                    binding.txtViewedNTimes.setTextAnimation(
+                        getString(R.string.viewed_n_times, card.viewedTimes)
+                    )
+                    binding.imgThumbDown.setOnClickListener {
+                        analytics.voteCard(FirebaseEvent.VOTE_DOWN_CARD, card.id)
+                    }
+                    binding.imgThumbUp.setOnClickListener {
+                        analytics.voteCard(FirebaseEvent.VOTE_UP_CARD, card.id)
+                    }
                 }
             }
         }
         lifecycle.coroutineScope.launch {
             viewModel.cards.collectLatest {
-                progressBar.isVisible = it is Resource.Loading
+                binding.progressCircular.isVisible = it is Resource.Loading
             }
         }
         lifecycle.coroutineScope.launch {
             viewModel.notMoreCards.collectLatest {
                 if (it) {
-                    btn.setOnClickListener {
+                    binding.btn.setOnClickListener {
                         analytics.trackEvent(FirebaseEvent.BTN_FINISH_GAME)
                         startActivity(
                             Intent(
@@ -60,7 +73,7 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
-        btn.setOnClickListener {
+        binding.btn.setOnClickListener {
             analytics.trackEvent(FirebaseEvent.BTN_ANOTHER_CARD)
             viewModel.anotherCard()
         }
