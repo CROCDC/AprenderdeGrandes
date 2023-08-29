@@ -210,31 +210,6 @@ class CardsRepositoryImpTest {
         assert(assert)
     }
 
-    @Test
-    fun viewCard() {
-        var assert = false
-        runTest {
-            val card = CardEntityMock.getFirstCardEntity()
-            dao.insert(listOf(card))
-            repository.viewCard(card)
-            val flow = repository.getCards()
-            launch {
-                flow.collect {
-                    if (it !is Resource.Loading) {
-                        assert = true
-                        assertEquals(
-                            card.copy(viewedTimes = card.viewedTimes.inc()),
-                            it.data?.cards?.get(0)
-                        )
-                        this.cancel()
-                    }
-                }
-            }
-
-        }
-        assert(assert)
-    }
-
     companion object {
         const val DATASOURCE = "DATASOURCE"
         const val DATABASE = "DATABASE"

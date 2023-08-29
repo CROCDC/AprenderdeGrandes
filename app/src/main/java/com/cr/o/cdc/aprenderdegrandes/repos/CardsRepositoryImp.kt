@@ -1,7 +1,6 @@
 package com.cr.o.cdc.aprenderdegrandes.repos
 
 import com.cr.o.cdc.aprenderdegrandes.database.Cards
-import com.cr.o.cdc.aprenderdegrandes.database.Database
 import com.cr.o.cdc.aprenderdegrandes.database.dao.CardsDao
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
@@ -23,8 +22,7 @@ interface CardsRepository {
 class CardsRepositoryImp @Inject constructor(
     private val dataSource: CardsDataSource,
     private val dao: CardsDao,
-    private val config: RemoteConfigDataSource,
-    private val database: Database
+    private val config: RemoteConfigDataSource
 ) : CardsRepository {
 
     override fun getCards() = networkBoundResource(
@@ -36,6 +34,8 @@ class CardsRepositoryImp @Inject constructor(
         },
         saveFetchResult = {
             val time = System.currentTimeMillis()
+            dao.deleteAllCardEntity()
+            dao.deleteAllSaveTimeEntity()
             dao.insert(
                 it.map {
                     CardEntity(
