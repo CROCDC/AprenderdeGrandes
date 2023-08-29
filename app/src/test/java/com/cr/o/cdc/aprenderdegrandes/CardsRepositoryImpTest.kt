@@ -1,10 +1,13 @@
 package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
 import com.cr.o.cdc.aprenderdegrandes.datasource.CardsDataSource
+import com.cr.o.cdc.aprenderdegrandes.mocks.CardEntityMock
+import com.cr.o.cdc.aprenderdegrandes.mocks.CardMock
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsDao
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockRemoteConfigDataSource
-import com.cr.o.cdc.aprenderdegrandes.mocks.Mocks
+import com.cr.o.cdc.aprenderdegrandes.mocks.SavedTimeEntityMock
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepositoryImp
 import io.mockk.MockKAnnotations
@@ -47,15 +50,15 @@ class CardsRepositoryImpTest {
     fun shouldFetchWithDatabaseInTrueAndRemoteConfigForceUpdateInFalse() {
         var assert = false
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
-            dao.insert(Mocks.getCards(text = "database"))
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
+            dao.insert(CardEntityMock.cardEntities(DATABASE))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "dataSource",
+                            DATASOURCE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -71,15 +74,17 @@ class CardsRepositoryImpTest {
     fun shouldFetchWithDatabaseInFalseAndRemoteConfigForceUpdateInFalse() {
         var assert = false
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
-            dao.insert(Mocks.getCards(text = "database", timestamp = System.currentTimeMillis()))
+            val time = System.currentTimeMillis()
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
+            dao.insert(CardEntityMock.cardEntities(firstText = DATABASE, firstSaveTimeId = time))
+            dao.insert(SavedTimeEntityMock.getSavedTimeEntity(time))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "database",
+                            DATABASE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -96,15 +101,17 @@ class CardsRepositoryImpTest {
         var assert = false
         MockRemoteConfigDataSource.setForceUpdate(true)
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
-            dao.insert(Mocks.getCards(text = "database", timestamp = System.currentTimeMillis()))
+            val time = System.currentTimeMillis()
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
+            dao.insert(CardEntityMock.cardEntities(firstText = DATABASE, firstSaveTimeId = time))
+            dao.insert(SavedTimeEntityMock.getSavedTimeEntity(timeStamp = time))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "dataSource",
+                            DATASOURCE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -121,15 +128,15 @@ class CardsRepositoryImpTest {
         var assert = false
         MockRemoteConfigDataSource.setForceUpdate(true)
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
-            dao.insert(Mocks.getCards(text = "database"))
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
+            dao.insert(CardEntityMock.cardEntities(firstText = DATABASE))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "dataSource",
+                            DATASOURCE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -145,16 +152,22 @@ class CardsRepositoryImpTest {
     fun shouldFetchAfterWeekend() {
         var assert = false
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
             val timestamp = Instant.now().minusMillis(7 * 24 * 60 * 60 * 1000).toEpochMilli()
-            dao.insert(Mocks.getCards(text = "database", timestamp = timestamp))
+            dao.insert(
+                CardEntityMock.cardEntities(
+                    firstText = DATABASE,
+                    firstSaveTimeId = timestamp
+                )
+            )
+            dao.insert(SavedTimeEntity(timestamp))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "dataSource",
+                            DATASOURCE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -170,16 +183,22 @@ class CardsRepositoryImpTest {
     fun shouldFetchAfterDay() {
         var assert = false
         runTest {
-            coEvery { dataSource.getCards() } returns Mocks.getCardList("dataSource")
+            coEvery { dataSource.getCards() } returns CardMock.getCards(DATASOURCE)
             val timestamp = Instant.now().minusMillis(24 * 60 * 60 * 1000).toEpochMilli()
-            dao.insert(Mocks.getCards(text = "database", timestamp = timestamp))
+            dao.insert(
+                CardEntityMock.cardEntities(
+                    firstText = DATABASE,
+                    firstSaveTimeId = timestamp
+                )
+            )
+            dao.insert(SavedTimeEntity(timestamp))
             val flow = repository.getCards()
             launch {
                 flow.collect {
                     if (it !is Resource.Loading) {
                         assert = true
                         assertEquals(
-                            "database",
+                            DATABASE,
                             it.data?.cards?.get(0)?.text
                         )
                         this.cancel()
@@ -189,5 +208,35 @@ class CardsRepositoryImpTest {
 
         }
         assert(assert)
+    }
+
+    @Test
+    fun viewCard() {
+        var assert = false
+        runTest {
+            val card = CardEntityMock.getFirstCardEntity()
+            dao.insert(listOf(card))
+            repository.viewCard(card)
+            val flow = repository.getCards()
+            launch {
+                flow.collect {
+                    if (it !is Resource.Loading) {
+                        assert = true
+                        assertEquals(
+                            card.copy(viewedTimes = card.viewedTimes.inc()),
+                            it.data?.cards?.get(0)
+                        )
+                        this.cancel()
+                    }
+                }
+            }
+
+        }
+        assert(assert)
+    }
+
+    companion object {
+        const val DATASOURCE = "DATASOURCE"
+        const val DATABASE = "DATABASE"
     }
 }

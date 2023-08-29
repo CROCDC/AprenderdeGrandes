@@ -1,34 +1,29 @@
 package com.cr.o.cdc.aprenderdegrandes.modules
 
-import android.content.Context
-import com.cr.o.cdc.aprenderdegrandes.R
 import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalytics
-import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalyticsImp
 import com.cr.o.cdc.aprenderdegrandes.datasource.FirebaseDatabase
 import com.cr.o.cdc.aprenderdegrandes.datasource.FirebaseDatabaseImp
 import com.cr.o.cdc.aprenderdegrandes.datasource.RemoteConfigDataSource
 import com.cr.o.cdc.aprenderdegrandes.datasource.RemoteConfigDataSourceImp
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.remoteconfig.FirebaseRemoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfig
-import com.google.firebase.remoteconfig.ktx.remoteConfigSettings
+import com.cr.o.cdc.aprenderdegrandes.mocks.MockMyFirebaseAnalyticsImp
 import dagger.Module
 import dagger.Provides
-import dagger.hilt.InstallIn
-import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
+import dagger.hilt.testing.TestInstallIn
 
 @Module
-@InstallIn(SingletonComponent::class)
-class FirebaseModule {
+@TestInstallIn(
+    components = [SingletonComponent::class],
+    replaces = [FirebaseModule::class]
+)
+class FakeFirebaseModule {
 
     @Provides
     fun provideFirebaseDatabase(): FirebaseDatabase = FirebaseDatabaseImp()
 
     @Provides
-    fun provideMyFirebaseAnalyticsImp(@ApplicationContext context: Context): MyFirebaseAnalytics =
-        MyFirebaseAnalyticsImp.create(context)
+    fun provideMyFirebaseAnalyticsImp(): MyFirebaseAnalytics = MockMyFirebaseAnalyticsImp()
 
     @Provides
     fun provideRemoteConfigDataSource(): RemoteConfigDataSource = RemoteConfigDataSourceImp()

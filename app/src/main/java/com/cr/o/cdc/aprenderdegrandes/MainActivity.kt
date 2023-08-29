@@ -10,8 +10,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.isVisible
 import androidx.lifecycle.coroutineScope
 import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
+import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalytics
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
-import com.google.firebase.analytics.FirebaseAnalytics
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
@@ -21,9 +21,8 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity() {
     private val viewModel: MainViewModel by viewModels()
 
-
     @Inject
-    lateinit var analytics: FirebaseAnalytics
+    lateinit var analytics: MyFirebaseAnalytics
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,7 +33,10 @@ class MainActivity : AppCompatActivity() {
         val btn = findViewById<View>(R.id.btn)
         lifecycle.coroutineScope.launch {
             viewModel.showCard.collectLatest {
-                it?.let { txt.setTextAnimation(it.text) }
+                it?.let {
+                    txt.setTextAnimation(it.text)
+                    analytics.trackViewCard(it)
+                }
             }
         }
         lifecycle.coroutineScope.launch {
@@ -46,7 +48,7 @@ class MainActivity : AppCompatActivity() {
             viewModel.notMoreCards.collectLatest {
                 if (it) {
                     btn.setOnClickListener {
-                        analytics.logEvent(FirebaseEvent.BTN_FINISH_GAME, null)
+                        analytics.trackEvent(FirebaseEvent.BTN_FINISH_GAME)
                         startActivity(
                             Intent(
                                 this@MainActivity,
@@ -59,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         btn.setOnClickListener {
-            analytics.logEvent(FirebaseEvent.BTN_ANOTHER_CARD, null)
+            analytics.trackEvent(FirebaseEvent.BTN_ANOTHER_CARD)
             viewModel.anotherCard()
         }
     }

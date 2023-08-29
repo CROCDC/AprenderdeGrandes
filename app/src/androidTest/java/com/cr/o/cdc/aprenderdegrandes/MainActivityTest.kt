@@ -13,7 +13,9 @@ import androidx.test.espresso.action.ViewActions
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
+import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
+import com.cr.o.cdc.aprenderdegrandes.mocks.MockMyFirebaseAnalyticsImp
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import junit.framework.TestCase.assertEquals
@@ -32,6 +34,7 @@ class MainActivityTest {
     fun before() {
         scenario = launchActivity()
         Thread.sleep(1000)
+        MockMyFirebaseAnalyticsImp.clean()
     }
 
     @Test
@@ -60,14 +63,14 @@ class MainActivityTest {
     fun btnAnotherCard() {
         onView(withId(R.id.btn)).perform(ViewActions.click())
         Thread.sleep(500)
-        onView(withId(R.id.txt)).check(
-            matches(
-                ViewMatchers.withText(
-                    MockCardsRepository.getCards.value.data?.cards?.get(
-                        1
-                    )?.text
-                )
-            )
+        val card = MockCardsRepository.getCards.value.data?.cards?.get(
+            1
+        )
+        onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(card?.text)))
+        assert(MockMyFirebaseAnalyticsImp.events.contains(FirebaseEvent.BTN_ANOTHER_CARD))
+        assertEquals(
+            card,
+            MockMyFirebaseAnalyticsImp.viewedCardEntity
         )
     }
 
@@ -78,6 +81,7 @@ class MainActivityTest {
         onView(withId(R.id.btn)).perform(ViewActions.click())
         Thread.sleep(500)
         assertEquals(Lifecycle.State.DESTROYED, scenario.state)
+        assert(MockMyFirebaseAnalyticsImp.events.contains(FirebaseEvent.BTN_FINISH_GAME))
     }
 
     private fun checkOverlayOffViews(viewList: List<View>) {

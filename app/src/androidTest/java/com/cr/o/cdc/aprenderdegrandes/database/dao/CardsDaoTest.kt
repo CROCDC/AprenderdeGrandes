@@ -2,16 +2,15 @@ package com.cr.o.cdc.aprenderdegrandes.database.dao
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.test.platform.app.InstrumentationRegistry
-import com.cr.o.cdc.aprenderdegrandes.database.Cards
-import com.cr.o.cdc.aprenderdegrandes.mocks.Mocks
+import com.cr.o.cdc.aprenderdegrandes.mocks.CardsMock
 import com.cr.o.cdc.aprenderdegrandes.modules.DatabaseModule
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
-import java.time.Instant
 
 class CardsDaoTest {
 
@@ -22,13 +21,16 @@ class CardsDaoTest {
         InstrumentationRegistry.getInstrumentation().targetContext
     ).cardsDao()
 
+    @Before
+    fun before(){
+        dao.deleteAllCardEntity()
+        dao.deleteAllSaveTimeEntity()
+    }
+
     @Test
     fun insertCards() = runTest {
-        val cards = Cards(
-            Instant.now().toEpochMilli(),
-            Mocks.ONE_CARD.value
-        )
-        dao.insert(cards)
+        dao.insert(CardsMock.getCardsEntities())
+        dao.insert(CardsMock.getSavedTimeEntity())
         assertEquals(
             "text",
             dao.get().first()?.cards?.get(0)?.text
@@ -37,15 +39,28 @@ class CardsDaoTest {
 
     @Test
     fun deleteAll() = runTest {
-        val cards = Cards(
-            1,
-            Mocks.ONE_CARD.value
-        )
-        dao.insert(cards)
-        dao.deleteAll()
+        dao.insert(CardsMock.getCardsEntities())
+        dao.insert(CardsMock.getSavedTimeEntity())
+        dao.deleteAllCardEntity()
+        dao.deleteAllSaveTimeEntity()
         assertEquals(
             null,
             dao.get().first()?.cards?.get(0)?.text
+        )
+    }
+
+    @Test
+    fun updateCardEntity() = runTest {
+        dao.insert(CardsMock.getCardsEntities())
+        dao.insert(CardsMock.getSavedTimeEntity())
+        dao.update(
+            CardsMock.getCardsEntities()[0].copy(
+                viewedTimes = 1
+            )
+        )
+        assertEquals(
+            1,
+            dao.get().first()?.cards?.get(0)?.viewedTimes
         )
     }
 }

@@ -26,14 +26,20 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
 import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
+import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalytics
 import com.cr.o.cdc.aprenderdegrandes.ui.theme.AppTheme
-import com.google.firebase.analytics.FirebaseAnalytics
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
+@AndroidEntryPoint
 class FinishGameActivity : ComponentActivity() {
+
+    @Inject
+    lateinit var analytics: MyFirebaseAnalytics
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            FinishGameActivityScreen()
+            FinishGameActivityScreen(analytics)
         }
     }
 }
@@ -52,9 +58,8 @@ fun FinishGameText() {
 }
 
 @Composable
-fun PlayAgainButton() {
+fun PlayAgainButton(analytics: MyFirebaseAnalytics) {
     val context = LocalContext.current
-    val firebase = FirebaseAnalytics.getInstance(context)
     Button(
         elevation = ButtonDefaults.buttonElevation(
             defaultElevation = 6.dp
@@ -63,7 +68,7 @@ fun PlayAgainButton() {
             .fillMaxWidth()
             .padding(horizontal = 30.dp, vertical = 10.dp),
         onClick = {
-            firebase.logEvent(FirebaseEvent.BTN_PLAY_AGAIN, null)
+            analytics.trackEvent(FirebaseEvent.BTN_PLAY_AGAIN)
             context.startActivity(
                 Intent(context, MainActivity::class.java)
             )
@@ -90,7 +95,7 @@ fun RateInPlayStore() {
 }
 
 @Composable
-fun FinishGameActivityScreen() {
+fun FinishGameActivityScreen(analytics: MyFirebaseAnalytics) {
     AppTheme {
         Surface(
             modifier = Modifier.fillMaxSize(),
@@ -101,7 +106,7 @@ fun FinishGameActivityScreen() {
             ) {
                 FinishGameText()
                 Spacer(modifier = Modifier.padding(top = 10.dp))
-                PlayAgainButton()
+                PlayAgainButton(analytics)
                 //RateInPlayStore()
             }
         }
@@ -123,18 +128,3 @@ fun RateInPlayStorePreview() {
         RateInPlayStore()
     }
 }
-
-@Preview(showBackground = true)
-@Composable
-fun PlayAgainButtonPreview() {
-    AppTheme {
-        PlayAgainButton()
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FinishGameActivityScreenPreview() {
-    FinishGameActivityScreen()
-}
-

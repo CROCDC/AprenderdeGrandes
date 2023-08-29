@@ -5,11 +5,13 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverter
 import androidx.room.TypeConverters
 import com.cr.o.cdc.aprenderdegrandes.database.dao.CardsDao
+import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
 import com.cr.o.cdc.aprenderdegrandes.repos.model.Card
 import com.google.gson.Gson
 import com.google.gson.reflect.TypeToken
 
-@Database(entities = [Cards::class], version = 1)
+@Database(entities = [CardEntity::class, SavedTimeEntity::class], version = 1)
 @TypeConverters(Converters::class)
 abstract class Database : RoomDatabase() {
     abstract fun cardsDao(): CardsDao
