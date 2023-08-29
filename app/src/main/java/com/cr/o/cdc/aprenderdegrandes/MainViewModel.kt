@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,11 +31,13 @@ class MainViewModel @Inject constructor(private val repository: CardsRepository)
 
     init {
         viewModelScope.launch {
-            cards = repository.getCards()
+            cards = repository.getCards().stateIn(viewModelScope)
             cards.collect { r ->
                 r.data?.cards?.firstOrNull()?.let {
                     selectCard(it, r.data?.cards ?: listOf())
-                    this.cancel()
+                    if (r is Resource.Success){
+                        this.cancel()
+                    }
                 }
             }
         }

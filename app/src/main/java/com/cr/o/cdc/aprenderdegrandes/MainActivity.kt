@@ -41,7 +41,11 @@ class MainActivity : AppCompatActivity() {
                     binding.txt.setTextAnimation(card.text)
                     analytics.trackViewCard(card)
                     binding.txtViewedNTimes.setTextAnimation(
-                        getString(R.string.viewed_n_times, card.viewedTimes)
+                        resources.getQuantityString(
+                            R.plurals.viewed_n_times,
+                            card.viewedTimes,
+                            card.viewedTimes
+                        )
                     )
                     binding.imgThumbDown.setOnClickListener {
                         analytics.voteCard(FirebaseEvent.VOTE_DOWN_CARD, card.id)

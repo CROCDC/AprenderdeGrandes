@@ -67,7 +67,7 @@ class MainActivityTest {
         val cardEntity = CardsMock.getCardsEntities()[0]
         onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(cardEntity.text)))
         onView(withId(R.id.txt_viewed_n_times)).check(
-            matches(ViewMatchers.withSubstring(cardEntity.viewedTimes.toString()))
+            matches(ViewMatchers.withSubstring(cardEntity.viewedTimes.inc().toString()))
         )
     }
 
@@ -81,8 +81,8 @@ class MainActivityTest {
         onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(card?.text)))
         assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.BTN_ANOTHER_CARD))
         assertEquals(
-            card,
-            MockMyFirebaseAnalyticsImp.viewedCardEntity
+            card?.id,
+            MockMyFirebaseAnalyticsImp.viewedCardEntity?.id
         )
     }
 

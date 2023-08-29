@@ -6,6 +6,9 @@
     <string name="finish_game">Has visto todas las preguntas del juego!</string>
     <string name="play_again">Jugar de nuevo!</string>
     <string name="rate_app">Calificanos en el play store!</string>
-    <string name="viewed_n_times">Vista %d veces</string>
     <string name="opinion_answer">Que te parecio la pregunta?</string>
+    <plurals name="viewed_n_times">
+        <item quantity="one">Vista %d vez</item>
+        <item quantity="other">Vista %d veces</item>
+    </plurals>
 </resources>
