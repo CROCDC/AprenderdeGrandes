@@ -20,8 +20,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MainActivity : AppCompatActivity() {
-    private val viewModel: MainViewModel by viewModels()
+class VolumeActivity : AppCompatActivity() {
+    private val viewModel: VolumeViewModel by viewModels()
 
     @Inject
     lateinit var analytics: MyFirebaseAnalytics
@@ -57,7 +57,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
         lifecycle.coroutineScope.launch {
-            viewModel.cards.collectLatest {
+            viewModel.volume.collectLatest {
                 binding.progressCircular.isVisible = it is Resource.Loading
             }
         }
@@ -68,7 +68,7 @@ class MainActivity : AppCompatActivity() {
                         analytics.trackEvent(FirebaseEvent.BTN_FINISH_GAME)
                         startActivity(
                             Intent(
-                                this@MainActivity,
+                                this@VolumeActivity,
                                 FinishGameActivity::class.java
                             )
                         )

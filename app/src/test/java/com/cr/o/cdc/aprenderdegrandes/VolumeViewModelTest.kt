@@ -17,7 +17,7 @@ import org.junit.Test
 import org.junit.rules.TestRule
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class MainViewModelTest {
+class VolumeViewModelTest {
 
     @get:Rule
     var rule: TestRule = InstantTaskExecutorRule()
@@ -32,7 +32,7 @@ class MainViewModelTest {
 
     @Test
     fun initialCard() = runTest {
-        val showCard = MainViewModel(repository).showCard.first()
+        val showCard = VolumeViewModel(repository).showCard.first()
         val expected = CardEntityMock.cardEntities()
         assertEquals(1, showCard?.viewedTimes)
         assertEquals(expected[0].text, showCard?.text)
@@ -40,7 +40,7 @@ class MainViewModelTest {
 
     @Test
     fun notShowSameCardTwoTimes() = runTest {
-        val viewModel = MainViewModel(repository)
+        val viewModel = VolumeViewModel(repository)
         val firstCard = viewModel.showCard.first()
         viewModel.anotherCard()
         val secondCard = viewModel.showCard.first()
@@ -49,7 +49,7 @@ class MainViewModelTest {
 
     @Test
     fun noMoreCards() = runTest {
-        val viewModel = MainViewModel(repository)
+        val viewModel = VolumeViewModel(repository)
         viewModel.anotherCard()
         viewModel.anotherCard()
         assertEquals(CardEntityMock.getSecondCardEntity().id, viewModel.showCard.first()?.id)

@@ -9,12 +9,16 @@ import androidx.room.Update
 import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
+import com.cr.o.cdc.aprenderdegrandes.repos.model.Volume
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardsDao {
-    @Query("SELECT * FROM savedtimeentity")
-    fun get(): Flow<Cards?>
+    @Transaction
+    @Query("SELECT * FROM VolumeEntity WHERE id = :number")
+    fun getVolumeWithCards(number: Int): Flow<VolumeWithCards?>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
@@ -22,6 +26,9 @@ interface CardsDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(savedTimeEntity: SavedTimeEntity)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(volumeEntity: VolumeEntity)
 
     @Query("DELETE FROM savedtimeentity")
     fun deleteAllSaveTimeEntity()

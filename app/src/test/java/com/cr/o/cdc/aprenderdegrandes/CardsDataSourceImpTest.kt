@@ -22,4 +22,16 @@ class CardsDataSourceImpTest {
             cards[0]
         )
     }
+
+    @Test
+    fun getVolume() = runTest {
+        val volume = dataSource.getVolume(1)
+        assertEquals(
+            Card(
+                "pregunta",
+                0
+            ),
+            volume.cards[0]
+        )
+    }
 }

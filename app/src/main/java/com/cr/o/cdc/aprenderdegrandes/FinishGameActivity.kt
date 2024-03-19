@@ -70,7 +70,7 @@ fun PlayAgainButton(analytics: MyFirebaseAnalytics) {
         onClick = {
             analytics.trackEvent(FirebaseEvent.BTN_PLAY_AGAIN)
             context.startActivity(
-                Intent(context, MainActivity::class.java)
+                Intent(context, VolumeActivity::class.java)
             )
             (context as? Activity)?.finish()
         }

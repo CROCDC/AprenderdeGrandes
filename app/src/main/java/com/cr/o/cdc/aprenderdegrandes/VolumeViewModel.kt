@@ -2,8 +2,8 @@ package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -17,11 +17,13 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(private val repository: CardsRepository) : ViewModel() {
+class VolumeViewModel @Inject constructor(
+    private val repository: CardsRepository
+) : ViewModel() {
 
     private val notViewedCards: MutableStateFlow<List<CardEntity>?> = MutableStateFlow(null)
 
-    lateinit var cards: Flow<Resource<Cards?>>
+    lateinit var volume: Flow<Resource<VolumeWithCards?>>
 
     private val _showCard = MutableStateFlow<CardEntity?>(null)
     val showCard: Flow<CardEntity?> = _showCard
@@ -31,11 +33,11 @@ class MainViewModel @Inject constructor(private val repository: CardsRepository)
 
     init {
         viewModelScope.launch {
-            cards = repository.getCards().stateIn(viewModelScope)
-            cards.collect { r ->
+            volume = repository.getVolume(1).stateIn(viewModelScope)
+            volume.collect { r ->
                 r.data?.cards?.firstOrNull()?.let {
                     selectCard(it, r.data?.cards ?: listOf())
-                    if (r is Resource.Success){
+                    if (r is Resource.Success) {
                         this.cancel()
                     }
                 }

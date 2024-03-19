@@ -26,11 +26,11 @@ import org.junit.Rule
 import org.junit.Test
 
 @HiltAndroidTest
-class MainActivityTest {
+class VolumeActivityTest {
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
 
-    private lateinit var scenario: ActivityScenario<MainActivity>
+    private lateinit var scenario: ActivityScenario<VolumeActivity>
     private lateinit var context: Context
 
     @Before

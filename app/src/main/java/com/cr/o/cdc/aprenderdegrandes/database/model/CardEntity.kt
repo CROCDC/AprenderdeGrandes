@@ -1,12 +1,22 @@
 package com.cr.o.cdc.aprenderdegrandes.database.model
 
 import androidx.room.Entity
+import androidx.room.ForeignKey
 import androidx.room.PrimaryKey
 
-@Entity
+@Entity(
+    foreignKeys = [
+        ForeignKey(
+            entity = VolumeEntity::class,
+            parentColumns = ["id"],
+            childColumns = ["volumeEntityId"],
+            onDelete = ForeignKey.CASCADE
+        )
+    ]
+)
 data class CardEntity(
     @PrimaryKey val id: Int,
     val text: String,
     val viewedTimes: Int,
-    val saveTimeId: Long
+    val volumeEntityId: Int
 )

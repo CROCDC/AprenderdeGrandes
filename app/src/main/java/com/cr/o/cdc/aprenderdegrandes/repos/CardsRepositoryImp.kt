@@ -1,9 +1,9 @@
 package com.cr.o.cdc.aprenderdegrandes.repos
 
-import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.dao.CardsDao
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
-import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
 import com.cr.o.cdc.aprenderdegrandes.datasource.CardsDataSource
 import com.cr.o.cdc.aprenderdegrandes.datasource.RemoteConfigDataSource
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
@@ -14,7 +14,8 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 interface CardsRepository {
-    fun getCards(): Flow<Resource<Cards?>>
+
+    fun getVolume(volume: Int): Flow<Resource<VolumeWithCards?>>
 
     suspend fun viewCard(viewedCardEntity: CardEntity)
 }
@@ -25,32 +26,32 @@ class CardsRepositoryImp @Inject constructor(
     private val config: RemoteConfigDataSource
 ) : CardsRepository {
 
-    override fun getCards() = networkBoundResource(
+    override fun getVolume(volume: Int): Flow<Resource<VolumeWithCards?>> = networkBoundResource(
         query = {
-            dao.get()
+            dao.getVolumeWithCards(volume)
         },
         fetch = {
-            dataSource.getCards()
+            dataSource.getVolume(volume)
         },
         saveFetchResult = {
-            val time = System.currentTimeMillis()
-            dao.deleteAllCardEntity()
-            dao.deleteAllSaveTimeEntity()
             dao.insert(
-                it.map {
+                VolumeEntity(volume, System.currentTimeMillis())
+            )
+            dao.insert(
+                it.cards.map {
                     CardEntity(
                         it.id,
                         it.text,
                         0,
-                        time
+                        volume
                     )
                 }
             )
-            dao.insert(SavedTimeEntity(time))
+
         },
         shouldFetch = {
-            it?.let {
-                System.currentTimeMillis() - it.savedTimeEntity.timeStamp >= 7 * 24 * 60 * 60 * 1000 || config.getForceUpdate()
+            it?.volume?.let {
+                System.currentTimeMillis() - it.saveTime >= 7 * 24 * 60 * 60 * 1000 || config.getForceUpdate()
             } ?: true
         }
     )
