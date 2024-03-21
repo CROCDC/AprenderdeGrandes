@@ -11,4 +11,7 @@
         <item quantity="one">Vista %d vez</item>
         <item quantity="other">Vista %d veces</item>
     </plurals>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="volume_1">Volumen 1</string>
+    <string name="volume_2">Volumen 2</string>
 </resources>

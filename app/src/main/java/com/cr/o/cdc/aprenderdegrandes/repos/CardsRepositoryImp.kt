@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 interface CardsRepository {
 
-    fun getVolume(volume: Int): Flow<Resource<VolumeWithCards?>>
+    fun getVolume(volumeId: Int): Flow<Resource<VolumeWithCards?>>
 
     suspend fun viewCard(viewedCardEntity: CardEntity)
 }
@@ -26,24 +26,24 @@ class CardsRepositoryImp @Inject constructor(
     private val config: RemoteConfigDataSource
 ) : CardsRepository {
 
-    override fun getVolume(volume: Int): Flow<Resource<VolumeWithCards?>> = networkBoundResource(
+    override fun getVolume(volumeId: Int): Flow<Resource<VolumeWithCards?>> = networkBoundResource(
         query = {
-            dao.getVolumeWithCards(volume)
+            dao.getVolumeWithCards(volumeId)
         },
         fetch = {
-            dataSource.getVolume(volume)
+            dataSource.getVolume(volumeId)
         },
         saveFetchResult = {
             dao.insert(
-                VolumeEntity(volume, System.currentTimeMillis())
+                VolumeEntity(volumeId, System.currentTimeMillis())
             )
             dao.insert(
                 it.cards.map {
                     CardEntity(
-                        it.id,
+                        volumeId.toString() + it.id,
                         it.text,
                         0,
-                        volume
+                        volumeId
                     )
                 }
             )

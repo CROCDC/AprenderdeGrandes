@@ -23,7 +23,7 @@ class CardsDataSourceImp @Inject constructor(private val firebaseDatabase: Fireb
     override suspend fun getVolume(id: Int): Volume = Volume(
         id,
         Gson().fromJson(
-            Gson().toJson(firebaseDatabase.getCards()),
+            Gson().toJson(firebaseDatabase.getCardsByVolume(id)),
             object : TypeToken<List<Card>>() {}.type
         )
     )

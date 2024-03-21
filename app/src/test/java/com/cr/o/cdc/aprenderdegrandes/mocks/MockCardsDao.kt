@@ -4,12 +4,17 @@ import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.dao.CardsDao
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeEntity
+import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class MockCardsDao : CardsDao {
     private var cards: MutableStateFlow<Cards?> = MutableStateFlow(null)
-    override fun get(): Flow<Cards?> = cards
+    override fun getVolumeWithCards(id: Int): Flow<VolumeWithCards?> {
+        TODO("Not yet implemented")
+    }
+
     override fun insert(cards: List<CardEntity>) {
         this.cards.value = this.cards.value?.copy(cards = cards) ?: Cards(
             SavedTimeEntity(0),
@@ -22,6 +27,10 @@ class MockCardsDao : CardsDao {
             savedTimeEntity,
             listOf()
         )
+    }
+
+    override fun insert(volumeEntity: VolumeEntity) {
+        TODO("Not yet implemented")
     }
 
     override fun deleteAllSaveTimeEntity() {

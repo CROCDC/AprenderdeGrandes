@@ -1,5 +1,6 @@
 package com.cr.o.cdc.aprenderdegrandes
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
@@ -124,6 +125,14 @@ class VolumeActivity : AppCompatActivity() {
                 completion?.let {
                     it()
                 }
+            }
+    }
+
+    companion object {
+        const val ARG_VOLUME_ID = "arg_volume_id"
+        fun getIntent(context: Context, volumeId: Int) =
+            Intent(context, VolumeActivity::class.java).apply {
+                putExtra(ARG_VOLUME_ID, volumeId)
             }
     }
 }

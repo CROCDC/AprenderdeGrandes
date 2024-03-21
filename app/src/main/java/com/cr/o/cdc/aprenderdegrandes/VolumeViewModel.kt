@@ -1,5 +1,6 @@
 package com.cr.o.cdc.aprenderdegrandes
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
@@ -18,7 +19,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class VolumeViewModel @Inject constructor(
-    private val repository: CardsRepository
+    private val repository: CardsRepository,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val notViewedCards: MutableStateFlow<List<CardEntity>?> = MutableStateFlow(null)
@@ -33,7 +35,11 @@ class VolumeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            volume = repository.getVolume(1).stateIn(viewModelScope)
+            volume = repository.getVolume(
+                checkNotNull(
+                    savedStateHandle.get<Int>(VolumeActivity.ARG_VOLUME_ID)
+                )
+            ).stateIn(viewModelScope)
             volume.collect { r ->
                 r.data?.cards?.firstOrNull()?.let {
                     selectCard(it, r.data?.cards ?: listOf())

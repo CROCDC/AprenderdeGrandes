@@ -6,32 +6,32 @@ object CardEntityMock {
 
     fun getFirstCardEntity(
         text: String = "text",
-        saveTimeId: Long = 0
+        volumeEntityId: Int = 1
     ) = CardEntity(
         0,
         text,
         0,
-        saveTimeId
+        volumeEntityId
     )
 
     fun getSecondCardEntity(
         text: String = "text 2",
-        saveTimeId: Long = 0
+        volumeEntityId: Int = 1
     ) = CardEntity(
         1,
         text,
         0,
-        saveTimeId
+        volumeEntityId
     )
 
     fun cardEntities(
         firstText: String = "text",
-        firstSaveTimeId: Long = 0,
+        firstVolumeEntityId: Int = 1,
         secondText: String = "text 2",
-        secondSaveTimeId: Long = 0,
+        secondVolumeEntityId: Int = 1,
     ) = listOf(
-        getFirstCardEntity(firstText, firstSaveTimeId),
-        getSecondCardEntity(secondText, secondSaveTimeId)
+        getFirstCardEntity(firstText, firstVolumeEntityId),
+        getSecondCardEntity(secondText, secondVolumeEntityId)
 
     )
 }

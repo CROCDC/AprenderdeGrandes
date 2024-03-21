@@ -9,7 +9,7 @@ interface MyFirebaseAnalytics {
     fun trackEvent(name: String)
     fun trackViewCard(entity: CardEntity)
 
-    fun voteCard(name: String, id: Int)
+    fun voteCard(name: String, id: String)
 }
 
 class MyFirebaseAnalyticsImp(context: Context) : MyFirebaseAnalytics {
@@ -18,7 +18,7 @@ class MyFirebaseAnalyticsImp(context: Context) : MyFirebaseAnalytics {
         firebase.logEvent(name, null)
     }
 
-    override fun voteCard(name: String, id: Int) {
+    override fun voteCard(name: String, id: String) {
         firebase.logEvent(
             name,
             bundleOf("id" to id)

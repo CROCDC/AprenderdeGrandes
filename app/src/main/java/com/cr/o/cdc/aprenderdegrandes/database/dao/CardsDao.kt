@@ -6,19 +6,17 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
-import com.cr.o.cdc.aprenderdegrandes.database.Cards
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
-import com.cr.o.cdc.aprenderdegrandes.repos.model.Volume
 import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardsDao {
     @Transaction
-    @Query("SELECT * FROM VolumeEntity WHERE id = :number")
-    fun getVolumeWithCards(number: Int): Flow<VolumeWithCards?>
+    @Query("SELECT * FROM VolumeEntity WHERE id = :id")
+    fun getVolumeWithCards(id: Int): Flow<VolumeWithCards?>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)

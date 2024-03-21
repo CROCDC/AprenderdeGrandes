@@ -1,6 +1,8 @@
 package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
+import androidx.core.os.bundleOf
+import androidx.lifecycle.SavedStateHandle
 import com.cr.o.cdc.aprenderdegrandes.mocks.CardEntityMock
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
 import junit.framework.TestCase.assertNotSame
@@ -24,6 +26,11 @@ class VolumeViewModelTest {
 
     private lateinit var repository: MockCardsRepository
 
+    private val savedStateHandle = SavedStateHandle.createHandle(
+        null,
+        bundleOf(VolumeActivity.ARG_VOLUME_ID to 1)
+    )
+
     @Before
     fun before() {
         repository = MockCardsRepository()
@@ -32,7 +39,7 @@ class VolumeViewModelTest {
 
     @Test
     fun initialCard() = runTest {
-        val showCard = VolumeViewModel(repository).showCard.first()
+        val showCard = VolumeViewModel(repository, savedStateHandle).showCard.first()
         val expected = CardEntityMock.cardEntities()
         assertEquals(1, showCard?.viewedTimes)
         assertEquals(expected[0].text, showCard?.text)
@@ -40,7 +47,7 @@ class VolumeViewModelTest {
 
     @Test
     fun notShowSameCardTwoTimes() = runTest {
-        val viewModel = VolumeViewModel(repository)
+        val viewModel = VolumeViewModel(repository, savedStateHandle)
         val firstCard = viewModel.showCard.first()
         viewModel.anotherCard()
         val secondCard = viewModel.showCard.first()
@@ -49,7 +56,7 @@ class VolumeViewModelTest {
 
     @Test
     fun noMoreCards() = runTest {
-        val viewModel = VolumeViewModel(repository)
+        val viewModel = VolumeViewModel(repository, savedStateHandle)
         viewModel.anotherCard()
         viewModel.anotherCard()
         assertEquals(CardEntityMock.getSecondCardEntity().id, viewModel.showCard.first()?.id)

@@ -15,7 +15,7 @@ import androidx.room.PrimaryKey
     ]
 )
 data class CardEntity(
-    @PrimaryKey val id: Int,
+    @PrimaryKey val id: String,
     val text: String,
     val viewedTimes: Int,
     val volumeEntityId: Int
