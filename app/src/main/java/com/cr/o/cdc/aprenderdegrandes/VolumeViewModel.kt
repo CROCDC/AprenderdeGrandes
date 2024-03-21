@@ -54,7 +54,7 @@ class VolumeViewModel @Inject constructor(
     fun anotherCard() {
         viewModelScope.launch {
             val notViewedCardsValue = notViewedCards.firstOrNull()
-            var anotherCard = notViewedCardsValue?.random()
+            var anotherCard = notViewedCardsValue?.takeIf { it.isNotEmpty() }?.random()
             if (anotherCard != null) {
                 while (anotherCard !in notViewedCardsValue!!) {
                     anotherCard = notViewedCardsValue.random()

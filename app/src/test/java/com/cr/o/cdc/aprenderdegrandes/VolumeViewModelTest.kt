@@ -1,10 +1,11 @@
 package com.cr.o.cdc.aprenderdegrandes
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.core.os.bundleOf
 import androidx.lifecycle.SavedStateHandle
 import com.cr.o.cdc.aprenderdegrandes.mocks.CardEntityMock
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
+import io.mockk.every
+import io.mockk.mockk
 import junit.framework.TestCase.assertNotSame
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -26,10 +27,10 @@ class VolumeViewModelTest {
 
     private lateinit var repository: MockCardsRepository
 
-    private val savedStateHandle = SavedStateHandle.createHandle(
-        null,
-        bundleOf(VolumeActivity.ARG_VOLUME_ID to 1)
-    )
+    val savedStateHandle = mockk<SavedStateHandle>(relaxed = true).apply {
+        every { get<Int>(VolumeActivity.ARG_VOLUME_ID) } returns 1
+    }
+
 
     @Before
     fun before() {

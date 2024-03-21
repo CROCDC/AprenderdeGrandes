@@ -9,7 +9,7 @@ class MockMyFirebaseAnalyticsImp : MyFirebaseAnalytics {
         events.add(name to null)
     }
 
-    override fun voteCard(name: String, id: Int) {
+    override fun voteCard(name: String, id: String) {
         events.add(name to id)
     }
 
@@ -20,7 +20,7 @@ class MockMyFirebaseAnalyticsImp : MyFirebaseAnalytics {
     companion object {
         fun contains(name: String) = events.contains(name to null)
 
-        fun contains(name: String, id: Int) = events.contains(name to id)
+        fun contains(name: String, id: String) = events.contains(name to id)
 
         val events: MutableList<Pair<String, Any?>> = mutableListOf()
         var viewedCardEntity: CardEntity? = null

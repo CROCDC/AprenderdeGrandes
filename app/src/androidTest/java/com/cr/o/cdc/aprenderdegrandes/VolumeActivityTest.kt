@@ -8,6 +8,7 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.view.children
 import androidx.lifecycle.Lifecycle
 import androidx.test.core.app.ActivityScenario
+import androidx.test.core.app.ApplicationProvider
 import androidx.test.core.app.launchActivity
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.action.ViewActions
@@ -15,7 +16,7 @@ import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers
 import androidx.test.espresso.matcher.ViewMatchers.withId
 import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
-import com.cr.o.cdc.aprenderdegrandes.mocks.CardsMock
+import com.cr.o.cdc.aprenderdegrandes.mocks.CardEntityMock
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockCardsRepository
 import com.cr.o.cdc.aprenderdegrandes.mocks.MockMyFirebaseAnalyticsImp
 import dagger.hilt.android.testing.HiltAndroidRule
@@ -35,7 +36,12 @@ class VolumeActivityTest {
 
     @Before
     fun before() {
-        scenario = launchActivity()
+        hiltRule.inject()
+        scenario = launchActivity(
+            VolumeActivity.getIntent(
+                ApplicationProvider.getApplicationContext(), 1
+            )
+        )
         scenario.onActivity {
             this.context = it
         }
@@ -45,7 +51,7 @@ class VolumeActivityTest {
 
     @Test
     fun rateCard() {
-        val cardEntity = CardsMock.getCardsEntities()[0]
+        val cardEntity = CardEntityMock.getFirstCardEntity()
         onView(withId(R.id.img_thumb_up)).perform(ViewActions.click())
         assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.VOTE_UP_CARD, cardEntity.id))
         MockMyFirebaseAnalyticsImp.clean()
@@ -64,7 +70,7 @@ class VolumeActivityTest {
 
     @Test
     fun showInitialCard() {
-        val cardEntity = CardsMock.getCardsEntities()[0]
+        val cardEntity = CardEntityMock.getFirstCardEntity()
         onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(cardEntity.text)))
         onView(withId(R.id.txt_viewed_n_times)).check(
             matches(ViewMatchers.withSubstring(cardEntity.viewedTimes.inc().toString()))
@@ -75,7 +81,7 @@ class VolumeActivityTest {
     fun btnAnotherCard() {
         onView(withId(R.id.btn)).perform(ViewActions.click())
         Thread.sleep(500)
-        val card = MockCardsRepository.getCards.value.data?.cards?.get(
+        val card = MockCardsRepository.volume.value.data?.cards?.get(
             1
         )
         onView(withId(R.id.txt)).check(matches(ViewMatchers.withText(card?.text)))
