@@ -2,130 +2,65 @@ package com.cr.o.cdc.aprenderdegrandes
 
 import android.content.Context
 import android.content.Intent
+import android.content.res.Configuration
 import android.os.Bundle
-import android.text.method.ScrollingMovementMethod
-import android.view.View
-import android.widget.TextView
-import androidx.activity.viewModels
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.view.isVisible
-import androidx.databinding.DataBindingUtil
-import androidx.lifecycle.coroutineScope
-import com.cr.o.cdc.aprenderdegrandes.analitycs.FirebaseEvent
-import com.cr.o.cdc.aprenderdegrandes.analitycs.MyFirebaseAnalytics
-import com.cr.o.cdc.aprenderdegrandes.databinding.ActivityMainBinding
-import com.cr.o.cdc.aprenderdegrandes.networking.Resource
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.cr.o.cdc.aprenderdegrandes.composables.AppHeader
+import com.cr.o.cdc.aprenderdegrandes.composables.Loading
+import com.cr.o.cdc.aprenderdegrandes.states.VolumeUIState
+import com.cr.o.cdc.aprenderdegrandes.ui.theme.AppTheme
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @AndroidEntryPoint
-class VolumeActivity : AppCompatActivity() {
-    private val viewModel: VolumeViewModel by viewModels()
-
-    @Inject
-    lateinit var analytics: MyFirebaseAnalytics
-
+class VolumeActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
 
-        val binding: ActivityMainBinding = DataBindingUtil.setContentView(
-            this,
-            R.layout.activity_main
-        )
-        binding.txt.movementMethod = ScrollingMovementMethod()
-        lifecycle.coroutineScope.launch {
-            viewModel.showCard.collectLatest {
-                it?.let { card ->
-                    binding.txt.setTextAnimation(card.text)
-                    analytics.trackViewCard(card)
-                    binding.txtViewedNTimes.setTextAnimation(
-                        resources.getQuantityString(
-                            R.plurals.viewed_n_times,
-                            card.viewedTimes,
-                            card.viewedTimes
-                        )
-                    )
-                    binding.imgThumbDown.setOnClickListener {
-                        analytics.voteCard(FirebaseEvent.VOTE_DOWN_CARD, card.id)
-                    }
-                    binding.imgThumbUp.setOnClickListener {
-                        analytics.voteCard(FirebaseEvent.VOTE_UP_CARD, card.id)
+        setContent {
+            val viewModel: VolumeViewModel = viewModel()
+            val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+            when (uiState) {
+                is VolumeUIState.Loading -> Loading()
+                is VolumeUIState.ShowCard -> {
+                    val card = (uiState as VolumeUIState.ShowCard).card
+                    VolumeActivityCompose(
+                        checkNotNull(intent.getIntExtra(ARG_VOLUME_ID, 0)),
+                        card.text,
+                        card.viewedTimes
+                    ) {
+                        viewModel.anotherCard()
                     }
                 }
             }
         }
-        lifecycle.coroutineScope.launch {
-            viewModel.volume.collectLatest {
-                binding.progressCircular.isVisible = it is Resource.Loading
-            }
-        }
-        lifecycle.coroutineScope.launch {
-            viewModel.notMoreCards.collectLatest {
-                if (it) {
-                    binding.btn.setOnClickListener {
-                        analytics.trackEvent(FirebaseEvent.BTN_FINISH_GAME)
-                        startActivity(
-                            Intent(
-                                this@VolumeActivity,
-                                FinishGameActivity::class.java
-                            )
-                        )
-                        finish()
-                    }
-                }
-            }
-        }
-        binding.btn.setOnClickListener {
-            analytics.trackEvent(FirebaseEvent.BTN_ANOTHER_CARD)
-            viewModel.anotherCard()
-        }
-    }
-
-    private fun TextView.setTextAnimation(
-        text: String,
-        duration: Long = 300,
-        completion: (() -> Unit)? = null
-    ) {
-        fadOutAnimation(duration) {
-            this.text = text
-            fadInAnimation(duration) {
-                completion?.let {
-                    it()
-                }
-            }
-        }
-    }
-
-    private fun View.fadOutAnimation(
-        duration: Long = 300,
-        visibility: Int = View.INVISIBLE,
-        completion: (() -> Unit)? = null
-    ) {
-        animate()
-            .alpha(0f)
-            .setDuration(duration)
-            .withEndAction {
-                this.visibility = visibility
-                completion?.let {
-                    it()
-                }
-            }
-    }
-
-    private fun View.fadInAnimation(duration: Long = 300, completion: (() -> Unit)? = null) {
-        alpha = 0f
-        visibility = View.VISIBLE
-        animate()
-            .alpha(1f)
-            .setDuration(duration)
-            .withEndAction {
-                completion?.let {
-                    it()
-                }
-            }
     }
 
     companion object {
@@ -134,5 +69,187 @@ class VolumeActivity : AppCompatActivity() {
             Intent(context, VolumeActivity::class.java).apply {
                 putExtra(ARG_VOLUME_ID, volumeId)
             }
+    }
+}
+
+@Composable
+fun VolumeActivityCompose(
+    volumeId: Int,
+    cardText: String,
+    viewedTimes: Int,
+    anotherCard: () -> Unit
+) {
+    AppTheme {
+        Column {
+            AppHeader()
+            VolumeTitleCompose(volumeId = volumeId)
+            CardCompose(cardText = cardText, viewedTimes = viewedTimes)
+            RateCardComposable()
+            AnotherButtonCardComposable(anotherCard)
+        }
+    }
+}
+
+@Composable
+fun VolumeTitleCompose(volumeId: Int) {
+    Text(
+        modifier = Modifier
+            .padding(top = 10.dp)
+            .fillMaxWidth(),
+        textAlign = TextAlign.Center,
+        text = stringResource(id = R.string.volume, volumeId.toString())
+    )
+}
+
+@Composable
+fun CardCompose(cardText: String, viewedTimes: Int) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .fillMaxSize(0.6f)
+            .padding(8.dp),
+        elevation = CardDefaults.elevatedCardElevation(4.dp)
+    ) {
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(8.dp)
+        ) {
+            val (txtCard, txtViewedTimes) = createRefs()
+            Text(
+                text = cardText,
+                fontSize = 30.sp,
+                modifier = Modifier.constrainAs(txtCard) {
+                    top.linkTo(parent.top)
+                    bottom.linkTo(txtViewedTimes.top)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+            )
+            Text(
+                text = LocalContext.current.resources.getQuantityString(
+                    R.plurals.viewed_n_times,
+                    viewedTimes,
+                    viewedTimes
+                ),
+                modifier = Modifier.constrainAs(txtViewedTimes) {
+                    bottom.linkTo(parent.bottom, margin = 16.dp)
+                    start.linkTo(parent.start)
+                    end.linkTo(parent.end)
+                }
+            )
+        }
+    }
+}
+
+@Composable
+fun AnotherButtonCardComposable(anotherCard: () -> Unit) {
+    Button(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp),
+        onClick = { anotherCard.invoke() }
+    ) {
+        Text(text = stringResource(id = R.string.other))
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun AnotherButtonCardComposablePreview() {
+    AppTheme {
+        AnotherButtonCardComposable {}
+    }
+}
+
+@Composable
+fun RateCardComposable() {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            color = MaterialTheme.colorScheme.onSurface,
+            modifier = Modifier.align(Alignment.CenterHorizontally),
+            text = stringResource(id = R.string.opinion_answer)
+        )
+        Row(modifier = Modifier.padding(10.dp)) {
+            Image(
+                modifier = Modifier
+                    .height(30.dp)
+                    .weight(1f)
+                    .clickable {
+
+                    },
+                painter = painterResource(id = R.drawable.baseline_thumb_down_48),
+                contentDescription = "TODO"
+            )
+            Image(
+                modifier = Modifier
+                    .height(30.dp)
+                    .weight(1f)
+                    .clickable {
+
+                    },
+                painter = painterResource(id = R.drawable.baseline_thumb_up_48),
+                contentDescription = "TODO"
+            )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun RateCardComposablePreview() {
+    AppTheme {
+        RateCardComposable()
+    }
+}
+
+@Composable
+@Preview(showBackground = true, widthDp = 200, heightDp = 200)
+fun CardComposePreview() {
+    AppTheme {
+        CardCompose("¿Sentís que tenés un propósito en la vida? ¿Cual es?", 3)
+    }
+}
+
+@Composable
+@Preview(showBackground = true)
+fun VolumeTitleComposePreview() {
+    AppTheme {
+        VolumeTitleCompose(1)
+    }
+}
+
+@Composable
+@Preview(showBackground = true, widthDp = 410, heightDp = 880)
+fun VolumeActivityComposePreview() {
+    VolumeActivityCompose(
+        1,
+        "¿Sentís que tenés un propósito en la vida? ¿Cual es?",
+        3
+    ) {
+
+    }
+}
+
+@Composable
+@Preview(showBackground = true, name = "Dark Mode", uiMode = Configuration.UI_MODE_NIGHT_YES)
+fun VolumeActivityComposePreviewDarkMode() {
+    VolumeActivityCompose(
+        1,
+        "¿Sentís que tenés un propósito en la vida? ¿Cual es?",
+        3
+    ) {
+
+    }
+}
+
+@Preview(showBackground = true, widthDp = 320, heightDp = 480)
+@Composable
+fun VolumeActivityComposePreviewSmallScreen() {
+    VolumeActivityCompose(
+        1,
+        "¿Sentís que tenés un propósito en la vida? ¿Cual es?",
+        3
+    ) {
     }
 }

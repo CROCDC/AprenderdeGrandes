@@ -7,12 +7,14 @@ import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
 import com.cr.o.cdc.aprenderdegrandes.networking.Resource
 import com.cr.o.cdc.aprenderdegrandes.repos.CardsRepository
+import com.cr.o.cdc.aprenderdegrandes.states.VolumeUIState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,26 +22,23 @@ import javax.inject.Inject
 @HiltViewModel
 class VolumeViewModel @Inject constructor(
     private val repository: CardsRepository,
-    private val savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val _uiState: MutableStateFlow<VolumeUIState> = MutableStateFlow(VolumeUIState.Loading)
+    val uiState: StateFlow<VolumeUIState>
+        get() = _uiState
 
     private val notViewedCards: MutableStateFlow<List<CardEntity>?> = MutableStateFlow(null)
 
-    lateinit var volume: Flow<Resource<VolumeWithCards?>>
-
-    private val _showCard = MutableStateFlow<CardEntity?>(null)
-    val showCard: Flow<CardEntity?> = _showCard
-    val notMoreCards: Flow<Boolean> = notViewedCards.mapNotNull {
-        it?.isEmpty()
-    }
+    private val volume: Flow<Resource<VolumeWithCards?>> = repository.getVolume(
+        checkNotNull(
+            savedStateHandle.get<Int>(VolumeActivity.ARG_VOLUME_ID)
+        )
+    ).stateIn(viewModelScope, SharingStarted.Eagerly, Resource.Loading())
 
     init {
         viewModelScope.launch {
-            volume = repository.getVolume(
-                checkNotNull(
-                    savedStateHandle.get<Int>(VolumeActivity.ARG_VOLUME_ID)
-                )
-            ).stateIn(viewModelScope)
             volume.collect { r ->
                 r.data?.cards?.firstOrNull()?.let {
                     selectCard(it, r.data?.cards ?: listOf())
@@ -59,7 +58,13 @@ class VolumeViewModel @Inject constructor(
                 while (anotherCard !in notViewedCardsValue!!) {
                     anotherCard = notViewedCardsValue.random()
                 }
-                selectCard(anotherCard, notViewedCardsValue)
+                if (anotherCard != null) {
+                    selectCard(anotherCard, notViewedCardsValue)
+                } else {
+                    //TODO NO MORE CARDS
+                }
+            } else {
+                //TODO NO MORE CARDS
             }
         }
     }
@@ -68,9 +73,11 @@ class VolumeViewModel @Inject constructor(
         repository.viewCard(viewedCardEntity)
     }
 
-    private suspend fun selectCard(cardEntity: CardEntity?, notViewCard: List<CardEntity>) {
-        this._showCard.value = cardEntity?.copy(viewedTimes = cardEntity.viewedTimes.inc())
-        cardEntity?.let {
+    private suspend fun selectCard(cardEntity: CardEntity, notViewCard: List<CardEntity>) {
+        this._uiState.value = VolumeUIState.ShowCard(
+            cardEntity.copy(viewedTimes = cardEntity.viewedTimes.inc())
+        )
+        cardEntity.let {
             viewCard(it)
             notViewedCards.value = notViewCard.minus(cardEntity)
         }
