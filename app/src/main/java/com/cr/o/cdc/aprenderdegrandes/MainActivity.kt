@@ -25,6 +25,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.TextUnitType
 import androidx.compose.ui.unit.dp
+import com.cr.o.cdc.aprenderdegrandes.composables.AppHeader
 import com.cr.o.cdc.aprenderdegrandes.ui.theme.AppTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,30 +47,7 @@ fun MainActivityCompose(context: Context) {
     }
 }
 
-@Composable
-fun AppHeader() {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(top = 40.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Image(
-            painterResource(id = R.mipmap.ic_launcher),
-            contentDescription = null,
-            modifier = Modifier
-                .height(150.dp)
-                .fillMaxWidth()
-        )
 
-        Text(
-            fontSize = TextUnit(20f, TextUnitType.Sp),
-            color = MaterialTheme.colorScheme.onSurface,
-            modifier = Modifier.padding(top = 10.dp),
-            text = stringResource(id = R.string.title)
-        )
-    }
-}
 
 @Composable
 fun VolumeItems(context: Context) {
@@ -124,21 +102,5 @@ fun MainActivityComposePreview() {
 fun MainActivityComposePreviewSmallScreen() {
     AppTheme {
         MainActivityCompose(LocalContext.current)
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun AppHeaderPreview() {
-    AppTheme {
-        AppHeader()
-    }
-}
-
-@Preview(showBackground = true, name = "Dark Mode", uiMode = UI_MODE_NIGHT_YES)
-@Composable
-fun AppHeaderPreviewDarkMode() {
-    AppTheme {
-        AppHeader()
     }
 }

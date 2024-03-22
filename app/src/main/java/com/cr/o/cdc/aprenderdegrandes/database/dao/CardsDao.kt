@@ -7,7 +7,6 @@ import androidx.room.Query
 import androidx.room.Transaction
 import androidx.room.Update
 import com.cr.o.cdc.aprenderdegrandes.database.model.CardEntity
-import com.cr.o.cdc.aprenderdegrandes.database.model.SavedTimeEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeEntity
 import com.cr.o.cdc.aprenderdegrandes.database.model.VolumeWithCards
 import kotlinx.coroutines.flow.Flow
@@ -23,16 +22,8 @@ interface CardsDao {
     fun insert(cards: List<CardEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(savedTimeEntity: SavedTimeEntity)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(volumeEntity: VolumeEntity)
 
-    @Query("DELETE FROM savedtimeentity")
-    fun deleteAllSaveTimeEntity()
-
-    @Query("DELETE FROM CardEntity")
-    fun deleteAllCardEntity()
 
     @Update
     fun update(cardEntity: CardEntity)

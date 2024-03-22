@@ -14,4 +14,5 @@
     <string name="title_activity_main">MainActivity</string>
     <string name="volume_1">Volumen 1</string>
     <string name="volume_2">Volumen 2</string>
+    <string name="volume">Volumen %1$s</string>
 </resources>
