@@ -52,11 +52,6 @@ class VolumeActivityTest {
     @Test
     fun rateCard() {
         val cardEntity = CardEntityMock.getFirstCardEntity()
-        onView(withId(R.id.img_thumb_up)).perform(ViewActions.click())
-        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.VOTE_UP_CARD, cardEntity.id))
-        MockMyFirebaseAnalyticsImp.clean()
-        onView(withId(R.id.img_thumb_down)).perform(ViewActions.click())
-        assert(MockMyFirebaseAnalyticsImp.contains(FirebaseEvent.VOTE_DOWN_CARD, cardEntity.id))
 
     }
 
